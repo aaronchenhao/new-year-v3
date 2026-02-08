@@ -268,7 +268,7 @@ export default function App() {
     if (step === GameStep.RELAY && myHorse) {
       const fetchMessage = async () => {
         try {
-          const response = await fetch(`http://localhost:3001/api/messages/${myHorse.id}`);
+          const response = await fetch(`http://82.157.244.45:3001/api/messages/${myHorse.id}`);
           const data = await response.json();
           if (data.success) {
             setIncomingMessage(data.message);
@@ -397,7 +397,7 @@ export default function App() {
     
     try {
       // 提交消息到后端
-      const response = await fetch(`http://localhost:3001/api/messages/${myHorse?.id}`, {
+      const response = await fetch(`http://82.157.244.45:3001/api/messages/${myHorse?.id}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
