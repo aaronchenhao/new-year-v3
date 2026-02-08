@@ -211,6 +211,7 @@ export default function App() {
 
   const [relayPool, setRelayPool] = useState<MessagePool>(HORSE_RELAY_MESSAGES);
   const [incomingMessage, setIncomingMessage] = useState<string>('');
+  const [incomingMessageUsername, setIncomingMessageUsername] = useState<string>('');
   const [userRelayInput, setUserRelayInput] = useState('');
   // New state to track input source
   const [isFromRandomPool, setIsFromRandomPool] = useState(false);
@@ -265,12 +266,24 @@ export default function App() {
 
   useEffect(() => {
     if (step === GameStep.RELAY && myHorse) {
-      const messages = relayPool[myHorse.id];
-      if (messages && messages.length > 0) {
-        setIncomingMessage(getRandom(messages));
-      } else {
-        setIncomingMessage("这是你的首条马蹄印，没人接你哦");
-      }
+      const fetchMessage = async () => {
+        try {
+          const response = await fetch(`http://localhost:3001/api/messages/${myHorse.id}`);
+          const data = await response.json();
+          if (data.success) {
+            setIncomingMessage(data.message);
+            setIncomingMessageUsername(data.username || '');
+          } else {
+            setIncomingMessage(data.message || "这是你的首条马蹄印，没人接你哦");
+            setIncomingMessageUsername(data.username || '');
+          }
+        } catch (error) {
+          console.error('获取消息失败:', error);
+          setIncomingMessage("这是你的首条马蹄印，没人接你哦");
+          setIncomingMessageUsername('');
+        }
+      };
+      fetchMessage();
     }
   }, [step, myHorse]);
 
@@ -362,7 +375,7 @@ export default function App() {
     }, 200);
   };
 
-  const handleRelaySubmit = () => {
+  const handleRelaySubmit = async () => {
     if (!userRelayInput.trim()) {
       setErrorMsg("怎么也得哼哼两句吧？");
       return;
@@ -382,24 +395,39 @@ export default function App() {
       }
     }
     
-    if (myHorse) {
-      setRelayPool(prev => ({...prev, [myHorse.id]: [...(prev[myHorse.id] || []), userRelayInput]}));
+    try {
+      // 提交消息到后端
+      const response = await fetch(`http://localhost:3001/api/messages/${myHorse?.id}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ content: userRelayInput, username }),
+      });
+      
+      const data = await response.json();
+      if (data.success) {
+        setToastMessage("🎉 传递成功");
+        setToastType("success");
+        setShowToast(true);
+        
+        setTimeout(() => {
+          bgmRef.current?.stop();
+          setShowToast(false);
+          if (Math.random() > 0.6) {
+            generateLeaderboard();
+            setShowLeaderboard(true);
+          } else {
+            setStep(GameStep.RESULT);
+          }
+        }, 1200);
+      } else {
+        setErrorMsg(data.message || "消息传递失败，请重试");
+      }
+    } catch (error) {
+      console.error('提交消息失败:', error);
+      setErrorMsg("网络错误，请重试");
     }
-    
-    setToastMessage("🎉 传递成功");
-    setToastType("success");
-    setShowToast(true);
-    
-    setTimeout(() => {
-        bgmRef.current?.stop();
-        setShowToast(false);
-        if (Math.random() > 0.6) {
-          generateLeaderboard();
-          setShowLeaderboard(true);
-        } else {
-          setStep(GameStep.RESULT);
-        }
-    }, 1200);
   };
 
   // Image Generation Logic
@@ -681,6 +709,12 @@ export default function App() {
            </div>
            <div className="bg-[#FFFDF7] p-6 rounded-[2rem] pop-shadow border-4 border-black font-bold text-lg text-[#9B1C1C] relative">
               “{incomingMessage}”
+              {incomingMessageUsername && (
+                <div className="mt-2 text-xs font-bold text-[#A1887F] flex items-center justify-end gap-1">
+                  <span>🐎</span>
+                  <span>来自上一匹{incomingMessageUsername}的祝福</span>
+                </div>
+              )}
            </div>
         </div>
 
