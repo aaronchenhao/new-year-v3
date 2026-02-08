@@ -983,7 +983,7 @@ export default function App() {
              </div>
              
              <div className="mt-8 bg-white p-2 rounded-xl border-2 border-black z-20">
-                 <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://cow-horse-universe.demo" className="w-20 h-20" />
+                 <img src="/logo.png" className="w-20 h-20" />
              </div>
          </div>
       </div>
