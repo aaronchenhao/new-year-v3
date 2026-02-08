@@ -741,9 +741,9 @@ export default function App() {
                  </div>
              </div>
 
-             {/* QR Code Section - Flexible margin to space evenly */}
+             {/* Logo Section - Flexible margin to space evenly */}
              <div className="my-auto bg-white p-2 rounded-xl border-2 border-black shadow-lg animate-pop" style={{animationDelay: '0.3s'}}>
-                 <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://cow-horse-universe.demo" alt="QR" className="w-16 h-16 opacity-90" />
+                 <img src="./logo.png" alt="Logo" className="w-16 h-16 opacity-90" />
              </div>
          </div>
 
@@ -983,7 +983,7 @@ export default function App() {
              </div>
              
              <div className="mt-8 bg-white p-2 rounded-xl border-2 border-black z-20">
-                 <img src="/logo.png" className="w-20 h-20" />
+                 <img src="./logo.png" className="w-20 h-20" />
              </div>
          </div>
       </div>
