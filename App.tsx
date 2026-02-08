@@ -198,6 +198,8 @@ export default function App() {
   const [step, setStep] = useState<GameStep>(GameStep.LANDING);
   const [myHorse, setMyHorse] = useState<HorseType | null>(null);
   const [myFate, setMyFate] = useState<FateWord | null>(null);
+  const [username, setUsername] = useState<string>('');
+  const [usernameError, setUsernameError] = useState<string>('');
   
   // State for random system roast suffix (only used in result page)
   const [randomSysRoast, setRandomSysRoast] = useState<string>('');
@@ -307,6 +309,23 @@ export default function App() {
 
   const handleStart = () => {
     bgmRef.current?.play();
+    setStep(GameStep.USERNAME_INPUT);
+  };
+
+  const handleUsernameSubmit = () => {
+    if (!username.trim()) {
+      setUsernameError("怎么也得整个牛马代号吧？");
+      return;
+    }
+    if (username.length < 3) {
+      setUsernameError("牛马代号太短了，至少3个字！");
+      return;
+    }
+    if (username.length > 12) {
+      setUsernameError("牛马代号太长了，最多12个字！");
+      return;
+    }
+    setUsernameError('');
     setStep(GameStep.SELECT_HORSE);
   };
 
@@ -459,6 +478,69 @@ export default function App() {
       <div className="z-10 w-full max-w-xs space-y-4 mt-8">
         <Button onClick={handleStart} className="w-full shadow-xl border-2 border-black" variant="primary">
           🚪 敲门进入
+        </Button>
+      </div>
+    </div>
+  );
+
+  const renderUsernameInput = () => (
+    <div className="flex-1 w-full h-full flex flex-col items-center justify-center relative overflow-hidden px-4 pt-20 pb-8">
+      {/* Top Decor */}
+      <div className="absolute top-4 w-full flex justify-between px-8 pointer-events-none z-0">
+          <Lantern className="relative transform -rotate-6" text="牛" />
+          <Lantern className="relative transform rotate-6 scale-90" text="马" />
+      </div>
+
+      {[...Array(6)].map((_, i) => (
+        <Particle key={i} style={{ top: `${Math.random()*100}%`, left: `${Math.random()*100}%`, animationDelay: `${i*0.5}s` }} />
+      ))}
+
+      {/* Main Input Area */}
+      <div className="relative w-full max-w-xs bg-[#FFFDF7] rounded-[2rem] pop-shadow border-4 border-black p-6 flex flex-col items-center text-center space-y-6 animate-pop z-10 mt-4">
+        
+        <div className="space-y-2">
+           <h2 className="text-xs font-black text-[#8B0000] tracking-widest bg-[#FFD700] border-2 border-black px-3 py-1 rounded-full inline-block transform -rotate-2">牛马登记处</h2>
+           <h1 className="text-4xl font-black text-[#9B1C1C] leading-none drop-shadow-sm">
+             请输入<br/>牛马代号
+           </h1>
+        </div>
+
+        {/* Input Section */}
+        <div className="w-full space-y-4">
+          <div className="relative">
+            <input
+              type="text"
+              value={username}
+              onChange={(e) => {
+                setUsername(e.target.value);
+                setUsernameError('');
+              }}
+              placeholder="请输入你的牛马代号"
+              maxLength={12}
+              className="w-full p-4 text-lg border-2 border-black rounded-2xl bg-white placeholder-[#D7CCC8] text-[#4A2722] focus:outline-none focus:ring-4 focus:ring-[#FFD700] shadow-inner"
+            />
+            <div className="absolute right-4 bottom-4 text-xs font-bold text-[#A1887F]">
+              {username.length}/12
+            </div>
+          </div>
+          
+          {usernameError && (
+            <div className="bg-[#D32F2F] text-white p-2 rounded-xl font-bold text-sm text-center animate-pop border-2 border-black">
+              {usernameError}
+            </div>
+          )}
+          
+          <p className="text-xs font-black text-[#8B0000] opacity-70 text-left">
+            🐂 牛马代号将作为你在牛马宇宙的身份标识<br/>
+            🐎 长度3-12字，越牛马越好
+          </p>
+        </div>
+      </div>
+
+      {/* Button Area */}
+      <div className="z-10 w-full max-w-xs space-y-4 mt-8">
+        <Button onClick={handleUsernameSubmit} className="w-full shadow-xl border-2 border-black" variant="primary">
+          🐎 确认代号
         </Button>
       </div>
     </div>
@@ -713,6 +795,10 @@ export default function App() {
                             </div>
                          </div>
                          
+                         <div className="text-xs font-bold text-[#5D4037] mb-2 flex items-center gap-2">
+                            <span className="w-2 h-2 rounded-full bg-[#22C55E] border border-black"></span>
+                            牛马代号：{username}
+                         </div>
                          <div className="text-xs font-bold text-[#5D4037] mb-4 flex items-center gap-2">
                             <span className="w-2 h-2 rounded-full bg-[#22C55E] border border-black"></span>
                             状态：{myFate?.word}着
@@ -756,6 +842,8 @@ export default function App() {
                setStep(GameStep.LANDING); 
                setMyFate(null); 
                setMyHorse(null); 
+               setUsername('');
+               setUsernameError('');
                setUserRelayInput('');
                setIsShaking(false);
                setShowFateResult(false);
@@ -973,6 +1061,7 @@ export default function App() {
                  <div className="pt-12 pb-6 px-6 flex flex-col items-center text-center">
                      <div className="mb-2 bg-[#FFD700] border-2 border-black px-3 py-1 rounded-full text-xs font-black text-[#4A2722]">神马 · 2026</div>
                      <h1 className="text-3xl font-black text-[#9B1C1C] mb-1">{myHorse?.name}</h1>
+                     <div className="text-sm font-bold text-[#5D4037] mb-2">牛马代号：{username}</div>
                      <div className="text-sm font-bold text-[#5D4037] mb-4">状态：{myFate?.word}着</div>
                      <div className="w-full bg-[#FFF0F0] border-2 border-[#D32F2F] rounded-xl p-2 relative text-left">
                         <p className="text-xs font-bold text-[#4A2722]">{myFate?.roast}</p>
@@ -1002,6 +1091,7 @@ export default function App() {
 
       <main className="flex-1 h-full overflow-hidden relative flex flex-col">
         {step === GameStep.LANDING && renderLanding()}
+        {step === GameStep.USERNAME_INPUT && renderUsernameInput()}
         {step === GameStep.SELECT_HORSE && renderSelectHorse()}
         {step === GameStep.DRAW_FATE && renderFate()}
         {step === GameStep.RELAY && renderRelay()}

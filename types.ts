@@ -24,8 +24,9 @@ export type MessagePool = Record<string, string[]>;
 
 export enum GameStep {
   LANDING = 0,
-  SELECT_HORSE = 1,
-  DRAW_FATE = 2,
-  RELAY = 3,
-  RESULT = 4,
+  USERNAME_INPUT = 1,
+  SELECT_HORSE = 2,
+  DRAW_FATE = 3,
+  RELAY = 4,
+  RESULT = 5,
 }
