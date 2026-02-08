@@ -398,16 +398,21 @@ export default function App() {
         const scene = scenes[i] as HTMLElement;
         const canvas = await html2canvas(scene, {
           backgroundColor: '#8B0000', // Explicit fallback background color
-          scale: 2, // Retina quality
+          scale: 1.5, // Reduced scale for better mobile performance
           logging: false,
           useCORS: true,
           allowTaint: true,
+          removeContainer: false,
+          width: 375,
+          height: 667,
+          scrollX: 0,
+          scrollY: 0,
         });
         images.push(canvas.toDataURL('image/png'));
       }
       setGeneratedImages(images);
     } catch (err) {
-      console.error(err);
+      console.error('生成图片失败:', err);
       setToastMessage("生成失败，请重试");
       setToastType("error");
       setShowToast(true);
@@ -878,9 +883,8 @@ export default function App() {
        width: '375px',
        height: '667px',
        position: 'relative',
-       // Consolidate background definitions for better html2canvas support
-       // Gradient FIRST, then pattern image (although pattern is transparent SVG)
-       background: `linear-gradient(180deg, #8B0000 0%, #FF6B6B 100%), url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M25,25 Q20,5 45,5 Q65,5 70,25 Q75,45 50,45 Q30,45 25,25 M30,10 L25,-5 L40,5 Z M55,10 L60,-5 L45,5 Z' fill='none' stroke='%23FFD700' stroke-width='2' stroke-opacity='0.15' transform='rotate(-15 50 50)' /%3E%3C/svg%3E")`,
+       // Simplified background for better mobile compatibility
+       background: '#8B0000',
        display: 'flex',
        flexDirection: 'column',
        alignItems: 'center',
