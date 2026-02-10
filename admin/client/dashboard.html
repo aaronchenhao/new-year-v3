@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理仪表盘</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- 头部导航 -->
+        <div class="header">
+            <h1>牛马宇宙管理系统</h1>
+            <nav>
+                <a href="dashboard.html">仪表盘</a>
+                <a href="users.html">用户管理</a>
+                <a href="messages.html">消息管理</a>
+                <a href="stats.html">统计分析</a>
+                <a href="javascript:void(0);" id="logout-btn">退出登录</a>
+            </nav>
+        </div>
+
+        <!-- 统计卡片 -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h4>总消息数</h4>
+                <div class="value" id="total-messages">0</div>
+            </div>
+            <div class="stat-card">
+                <h4>总用户数</h4>
+                <div class="value" id="total-users">0</div>
+            </div>
+            <div class="stat-card">
+                <h4>总访问量</h4>
+                <div class="value" id="total-visits">0</div>
+            </div>
+        </div>
+
+        <!-- 系统状态 -->
+        <div class="card">
+            <h3>系统状态</h3>
+            <div id="system-status">
+                <div class="loading">加载中...</div>
+            </div>
+        </div>
+
+        <!-- 最近访问 -->
+        <div class="card">
+            <h3>最近访问记录</h3>
+            <div id="recent-visits">
+                <div class="loading">加载中...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 检查登录状态
+        if (localStorage.getItem('adminLoggedIn') !== 'true') {
+            window.location.href = 'index.html';
+        }
+
+        // 退出登录
+        document.getElementById('logout-btn').addEventListener('click', () => {
+            localStorage.removeItem('adminLoggedIn');
+            window.location.href = 'index.html';
+        });
+
+        // 获取认证头
+        const getAuthHeaders = () => {
+            // 从localStorage获取密码，或使用默认值
+            const adminPassword = localStorage.getItem('adminPassword') || 'Chenshutong@821';
+            const basicAuth = btoa(`admin:${adminPassword}`);
+            return { 'Authorization': `Basic ${basicAuth}` };
+        };
+
+        // 加载统计数据
+        const loadStats = async () => {
+            try {
+                const response = await fetch('/admin/stats', {
+                    headers: getAuthHeaders()
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    document.getElementById('total-messages').textContent = data.stats.total_messages;
+                    document.getElementById('total-users').textContent = data.stats.total_users;
+                    document.getElementById('total-visits').textContent = data.stats.total_visits;
+                }
+            } catch (error) {
+                console.error('加载统计数据失败:', error);
+            }
+        };
+
+        // 加载系统状态
+        const loadSystemStatus = async () => {
+            try {
+                const response = await fetch('/admin/health');
+                const data = await response.json();
+
+                if (data.success) {
+                    document.getElementById('system-status').innerHTML = `
+                        <p>✓ 管理服务运行正常</p>
+                        <p>✓ API接口可访问</p>
+                        <p>✓ 系统时间: ${new Date().toLocaleString()}</p>
+                    `;
+                } else {
+                    document.getElementById('system-status').innerHTML = `
+                        <p class="error-message">✗ 系统状态异常</p>
+                    `;
+                }
+            } catch (error) {
+                console.error('加载系统状态失败:', error);
+                document.getElementById('system-status').innerHTML = `
+                    <p class="error-message">✗ 无法连接到系统</p>
+                `;
+            }
+        };
+
+        // 加载最近访问记录
+        const loadRecentVisits = async () => {
+            try {
+                const response = await fetch('/admin/users/visits', {
+                    headers: getAuthHeaders()
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    const visits = data.visits.slice(0, 10); // 只显示最近10条
+                    const visitsHtml = visits.map(visit => `
+                        <div style="padding: 10px; border-bottom: 1px solid #eee;">
+                            <div><strong>IP地址:</strong> ${visit.ip}</div>
+                            <div><strong>访问时间:</strong> ${new Date(visit.timestamp).toLocaleString()}</div>
+                        </div>
+                    `).join('');
+
+                    document.getElementById('recent-visits').innerHTML = visitsHtml;
+                }
+            } catch (error) {
+                console.error('加载访问记录失败:', error);
+                document.getElementById('recent-visits').innerHTML = `
+                    <p class="error-message">无法加载访问记录</p>
+                `;
+            }
+        };
+
+        // 初始化加载
+        document.addEventListener('DOMContentLoaded', async () => {
+            await Promise.all([
+                loadStats(),
+                loadSystemStatus(),
+                loadRecentVisits()
+            ]);
+        });
+    </script>
+</body>
+</html>

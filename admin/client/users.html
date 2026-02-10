@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户管理</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- 头部导航 -->
+        <div class="header">
+            <h1>牛马宇宙管理系统</h1>
+            <nav>
+                <a href="dashboard.html">仪表盘</a>
+                <a href="users.html">用户管理</a>
+                <a href="messages.html">消息管理</a>
+                <a href="stats.html">统计分析</a>
+                <a href="javascript:void(0);" id="logout-btn">退出登录</a>
+            </nav>
+        </div>
+
+        <!-- 搜索框 -->
+        <div class="search-box">
+            <input type="text" id="search-input" placeholder="搜索IP...">
+            <button class="btn btn-primary" id="search-btn">搜索</button>
+        </div>
+
+        <!-- 用户列表 -->
+        <div class="table-container">
+            <h3>用户列表（IP唯一索引）</h3>
+            <div id="users-table-container">
+                <div class="loading">加载中...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 检查登录状态
+        if (localStorage.getItem('adminLoggedIn') !== 'true') {
+            window.location.href = 'index.html';
+        }
+
+        // 退出登录
+        document.getElementById('logout-btn').addEventListener('click', () => {
+            localStorage.removeItem('adminLoggedIn');
+            window.location.href = 'index.html';
+        });
+
+        // 获取认证头
+        const getAuthHeaders = () => {
+            // 从localStorage获取密码，或使用默认值
+            const adminPassword = localStorage.getItem('adminPassword') || 'Chenshutong@821';
+            const basicAuth = btoa(`admin:${adminPassword}`);
+            return { 'Authorization': `Basic ${basicAuth}` };
+        };
+
+        // 分页状态
+        let currentPage = 1;
+        const limit = 50;
+
+        // 加载用户列表
+        const loadUsers = async (page = 1) => {
+            try {
+                const response = await fetch(`/admin/users?page=${page}&limit=${limit}`, {
+                    headers: getAuthHeaders()
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    const users = data.users;
+                    const pagination = data.pagination;
+                    currentPage = page;
+                    
+                    const tableHtml = `
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>IP地址</th>
+                                    <th>首次访问</th>
+                                    <th>最后访问</th>
+                                    <th>访问次数</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${users.map(user => `
+                                    <tr>
+                                        <td>${user.ip}</td>
+                                        <td>${user.first_seen ? new Date(user.first_seen).toLocaleString() : '未知'}</td>
+                                        <td>${user.last_seen ? new Date(user.last_seen).toLocaleString() : '未知'}</td>
+                                        <td>${user.visit_count || 0}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                        <div class="pagination">
+                            <button ${page === 1 ? 'disabled' : ''} onclick="loadUsers(${page - 1})">&laquo; 上一页</button>
+                            <span>第 ${page} 页，共 ${pagination.totalPages} 页，总计 ${pagination.total} 条</span>
+                            <button ${page === pagination.totalPages ? 'disabled' : ''} onclick="loadUsers(${page + 1})">&raquo; 下一页</button>
+                        </div>
+                    `;
+
+                    document.getElementById('users-table-container').innerHTML = tableHtml;
+                }
+            } catch (error) {
+                console.error('加载用户列表失败:', error);
+                document.getElementById('users-table-container').innerHTML = `
+                    <p class="error-message">无法加载用户列表</p>
+                `;
+            }
+        };
+
+
+
+        // 搜索功能
+        document.getElementById('search-btn').addEventListener('click', async () => {
+            const searchTerm = document.getElementById('search-input').value.trim();
+            if (!searchTerm) {
+                loadUsers(1);
+                return;
+            }
+
+            try {
+                // 尝试搜索IP
+                const ipResponse = await fetch(`/admin/users/ip/${searchTerm}`, {
+                    headers: getAuthHeaders()
+                });
+                const ipData = await ipResponse.json();
+
+                if (ipData.success) {
+                    // 显示IP搜索结果
+                    const user = ipData.user;
+                    const tableHtml = `
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>IP地址</th>
+                                    <th>首次访问</th>
+                                    <th>最后访问</th>
+                                    <th>访问次数</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>${user.ip}</td>
+                                    <td>${user.first_seen ? new Date(user.first_seen).toLocaleString() : '未知'}</td>
+                                    <td>${user.last_seen ? new Date(user.last_seen).toLocaleString() : '未知'}</td>
+                                    <td>${user.visit_count || 0}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="pagination">
+                            <span>共 1 条结果</span>
+                        </div>
+                    `;
+                    document.getElementById('users-table-container').innerHTML = tableHtml;
+                } else {
+                    document.getElementById('users-table-container').innerHTML = `
+                        <p class="error-message">未找到该IP地址</p>
+                    `;
+                }
+            } catch (error) {
+                console.error('搜索失败:', error);
+                document.getElementById('users-table-container').innerHTML = `
+                    <p class="error-message">搜索失败，请重试</p>
+                `;
+            }
+        });
+
+        // 初始化加载
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadUsers(1);
+        });
+    </script>
+</body>
+</html>

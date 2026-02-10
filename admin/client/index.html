@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理员登录</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="login-container">
+        <h2>管理员登录</h2>
+        
+        <div id="error-message" class="error-message" style="display: none;"></div>
+        
+        <form id="login-form">
+            <div class="form-group">
+                <label for="password">密码</label>
+                <input type="password" id="password" name="password" placeholder="请输入管理员密码" required>
+            </div>
+            
+            <button type="submit" class="btn btn-primary" style="width: 100%;">登录</button>
+        </form>
+        
+
+    </div>
+
+    <script>
+        // 登录表单提交
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const password = document.getElementById('password').value;
+            const errorMessage = document.getElementById('error-message');
+            
+            errorMessage.style.display = 'none';
+            
+            try {
+                const response = await fetch('/admin/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ password })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // 登录成功，存储登录状态和密码
+                    localStorage.setItem('adminLoggedIn', 'true');
+                    localStorage.setItem('adminPassword', password);
+                    window.location.href = 'dashboard.html';
+                } else {
+                    // 登录失败，显示错误消息
+                    errorMessage.textContent = data.message || '登录失败';
+                    errorMessage.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('登录错误:', error);
+                errorMessage.textContent = '登录失败，请重试';
+                errorMessage.style.display = 'block';
+            }
+        });
+        
+        // 检查是否已登录
+        if (localStorage.getItem('adminLoggedIn') === 'true') {
+            window.location.href = 'dashboard.html';
+        }
+    </script>
+</body>
+</html>

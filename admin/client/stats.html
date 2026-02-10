@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>统计分析</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- 头部导航 -->
+        <div class="header">
+            <h1>牛马宇宙管理系统</h1>
+            <nav>
+                <a href="dashboard.html">仪表盘</a>
+                <a href="users.html">用户管理</a>
+                <a href="messages.html">消息管理</a>
+                <a href="stats.html">统计分析</a>
+                <a href="javascript:void(0);" id="logout-btn">退出登录</a>
+            </nav>
+        </div>
+
+        <!-- 统计概览 -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h4>总消息数</h4>
+                <div class="value" id="total-messages">0</div>
+            </div>
+            <div class="stat-card">
+                <h4>总用户数</h4>
+                <div class="value" id="total-users">0</div>
+            </div>
+            <div class="stat-card">
+                <h4>总访问量</h4>
+                <div class="value" id="total-visits">0</div>
+            </div>
+        </div>
+
+
+
+        <!-- 排行榜 -->
+        <div class="card">
+            <h3>摸鱼排行榜</h3>
+            <div id="leaderboard">
+                <div class="loading">加载中...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 检查登录状态
+        if (localStorage.getItem('adminLoggedIn') !== 'true') {
+            window.location.href = 'index.html';
+        }
+
+        // 退出登录
+        document.getElementById('logout-btn').addEventListener('click', () => {
+            localStorage.removeItem('adminLoggedIn');
+            window.location.href = 'index.html';
+        });
+
+        // 马类型映射
+        const HORSE_TYPES = {
+            '1': '纯血牛马',
+            '2': '极品脆皮马',
+            '3': '假装在跑马',
+            '4': '被牵着走马',
+            '5': '想逃没草马',
+            '6': '躺平心虚马',
+            '7': '半退休马',
+            '8': '已读不回马',
+            '9': 'AI 边缘马',
+            '10': '情绪外包马',
+            '11': '天生拽马'
+        };
+
+        // 根据ID获取马名字
+        const getHorseName = (id) => {
+            return HORSE_TYPES[id] || `马类型 ${id}`;
+        };
+
+        // 获取认证头
+        const getAuthHeaders = () => {
+            // 从localStorage获取密码，或使用默认值
+            const adminPassword = localStorage.getItem('adminPassword') || 'Chenshutong@821';
+            const basicAuth = btoa(`admin:${adminPassword}`);
+            return { 'Authorization': `Basic ${basicAuth}` };
+        };
+
+        // 加载统计数据
+        const loadStats = async () => {
+            try {
+                const response = await fetch('/admin/stats', {
+                    headers: getAuthHeaders()
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    const stats = data.stats;
+                    
+                    // 更新统计卡片
+                    document.getElementById('total-messages').textContent = stats.total_messages;
+                    document.getElementById('total-users').textContent = stats.total_users;
+                    document.getElementById('total-visits').textContent = stats.total_visits;
+                }
+            } catch (error) {
+                console.error('加载统计数据失败:', error);
+            }
+        };
+
+        // 加载排行榜数据
+        const loadLeaderboard = async () => {
+            try {
+                const response = await fetch('/admin/stats/leaderboard', {
+                    headers: getAuthHeaders()
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    const stats = data.stats;
+                    const total = data.total;
+
+                    // 计算百分比并排序
+                    const leaderboard = Object.entries(stats)
+                        .map(([horseId, count]) => ({
+                            horseId,
+                            count,
+                            percentage: total > 0 ? Math.round((count / total) * 100) : 0
+                        }))
+                        .sort((a, b) => b.count - a.count);
+
+                    const leaderboardHtml = leaderboard.map((item, index) => `
+                        <div style="margin-bottom: 10px; padding: 10px; border: 1px solid #eee; border-radius: 4px;">
+                            <span style="font-weight: bold;">${index + 1}. ${getHorseName(item.horseId)}</span>
+                            <span style="float: right;">${item.count} 条消息 (${item.percentage}%)</span>
+                        </div>
+                    `).join('');
+
+                    document.getElementById('leaderboard').innerHTML = leaderboardHtml;
+                }
+            } catch (error) {
+                console.error('加载排行榜数据失败:', error);
+                document.getElementById('leaderboard').innerHTML = `
+                    <p class="error-message">无法加载排行榜数据</p>
+                `;
+            }
+        };
+
+        // 初始化加载
+        document.addEventListener('DOMContentLoaded', async () => {
+            await Promise.all([
+                loadStats(),
+                loadLeaderboard()
+            ]);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>消息管理</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- 头部导航 -->
+        <div class="header">
+            <h1>牛马宇宙管理系统</h1>
+            <nav>
+                <a href="dashboard.html">仪表盘</a>
+                <a href="users.html">用户管理</a>
+                <a href="messages.html">消息管理</a>
+                <a href="stats.html">统计分析</a>
+                <a href="javascript:void(0);" id="logout-btn">退出登录</a>
+            </nav>
+        </div>
+
+        <!-- 搜索框 -->
+        <div class="search-box">
+            <select id="horse-type-select">
+                <option value="">全部马类型</option>
+                <option value="1">纯血牛马</option>
+                <option value="2">极品脆皮马</option>
+                <option value="3">假装在跑马</option>
+                <option value="4">被牵着走马</option>
+                <option value="5">想逃没草马</option>
+                <option value="6">躺平心虚马</option>
+                <option value="7">半退休马</option>
+                <option value="8">已读不回马</option>
+                <option value="9">AI 边缘马</option>
+                <option value="10">情绪外包马</option>
+                <option value="11">天生拽马</option>
+            </select>
+            <button class="btn btn-primary" id="search-btn">搜索</button>
+        </div>
+
+        <!-- 消息列表 -->
+        <div class="table-container">
+            <h3>消息管理</h3>
+            <div id="messages-table-container">
+                <div class="loading">加载中...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 检查登录状态
+        if (localStorage.getItem('adminLoggedIn') !== 'true') {
+            window.location.href = 'index.html';
+        }
+
+        // 退出登录
+        document.getElementById('logout-btn').addEventListener('click', () => {
+            localStorage.removeItem('adminLoggedIn');
+            window.location.href = 'index.html';
+        });
+
+        // 马类型映射
+        const HORSE_TYPES = {
+            '1': '纯血牛马',
+            '2': '极品脆皮马',
+            '3': '假装在跑马',
+            '4': '被牵着走马',
+            '5': '想逃没草马',
+            '6': '躺平心虚马',
+            '7': '半退休马',
+            '8': '已读不回马',
+            '9': 'AI 边缘马',
+            '10': '情绪外包马',
+            '11': '天生拽马'
+        };
+
+        // 根据ID获取马名字
+        const getHorseName = (id) => {
+            return HORSE_TYPES[id] || `马类型 ${id}`;
+        };
+
+        // 获取认证头
+        const getAuthHeaders = () => {
+            // 从localStorage获取密码，或使用默认值
+            const adminPassword = localStorage.getItem('adminPassword') || 'Chenshutong@821';
+            const basicAuth = btoa(`admin:${adminPassword}`);
+            return { 'Authorization': `Basic ${basicAuth}` };
+        };
+
+        // 分页状态
+        let currentPage = 1;
+        const limit = 50;
+        let currentFilter = '';
+
+        // 搜索功能
+        document.getElementById('search-btn').addEventListener('click', async () => {
+            currentFilter = document.getElementById('horse-type-select').value;
+            currentPage = 1;
+            await loadMessages(currentFilter, currentPage);
+        });
+
+        // 加载消息列表
+        const loadMessages = async (horseTypeFilter = '', page = 1) => {
+            try {
+                let messages;
+                let pagination;
+                
+                if (horseTypeFilter) {
+                    // 按马类型搜索
+                    const response = await fetch('/admin/messages', {
+                        headers: getAuthHeaders()
+                    });
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        messages = data.messages.filter(message => message.horseId === horseTypeFilter);
+                        // 模拟分页
+                        const total = messages.length;
+                        const offset = (page - 1) * limit;
+                        messages = messages.slice(offset, offset + limit);
+                        pagination = {
+                            total,
+                            page,
+                            limit,
+                            totalPages: Math.ceil(total / limit)
+                        };
+                    }
+                } else {
+                    // 加载所有消息，带分页
+                    const response = await fetch(`/admin/messages?page=${page}&limit=${limit}`, {
+                        headers: getAuthHeaders()
+                    });
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        messages = data.messages;
+                        pagination = data.pagination;
+                    }
+                }
+
+                if (messages) {
+                    const tableHtml = `
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>马类型</th>
+                                    <th>消息内容</th>
+                                    <th>IP地址</th>
+                                    <th>用户名</th>
+                                    <th>时间</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${messages.map((message) => `
+                                    <tr>
+                                        <td>${getHorseName(message.horseId)}</td>
+                                        <td>${message.content}</td>
+                                        <td>${message.ip || '未知'}</td>
+                                        <td>${message.username || '匿名'}</td>
+                                        <td>${message.timestamp ? new Date(message.timestamp).toLocaleString() : '未知'}</td>
+                                        <td>
+                                            <button class="btn btn-danger" onclick="deleteMessage('${message.horseId}', '${message.content}', '${message.timestamp}')">删除</button>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                        <div class="pagination">
+                            <button ${page === 1 ? 'disabled' : ''} onclick="loadMessages('${horseTypeFilter}', ${page - 1})">&laquo; 上一页</button>
+                            <span>第 ${page} 页，共 ${pagination.totalPages} 页，总计 ${pagination.total} 条</span>
+                            <button ${page === pagination.totalPages ? 'disabled' : ''} onclick="loadMessages('${horseTypeFilter}', ${page + 1})">&raquo; 下一页</button>
+                        </div>
+                    `;
+
+                    document.getElementById('messages-table-container').innerHTML = tableHtml;
+                }
+            } catch (error) {
+                console.error('加载消息列表失败:', error);
+                document.getElementById('messages-table-container').innerHTML = `
+                    <p class="error-message">无法加载消息列表</p>
+                `;
+            }
+        };
+
+        // 删除消息
+        window.deleteMessage = async (horseId, content, timestamp) => {
+            if (confirm('确定要删除这条消息吗？')) {
+                try {
+                    // 发送删除请求，传递消息内容和时间戳
+                    const deleteResponse = await fetch(`/admin/messages/${horseId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            ...getAuthHeaders(),
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ content, timestamp })
+                    });
+                    const deleteData = await deleteResponse.json();
+
+                    if (deleteData.success) {
+                        alert('消息删除成功');
+                        // 重新加载当前过滤条件下的消息，保持当前页码
+                        const currentFilter = document.getElementById('horse-type-select').value;
+                        await loadMessages(currentFilter, currentPage);
+                    } else {
+                        alert('消息删除失败: ' + deleteData.message);
+                    }
+                } catch (error) {
+                    console.error('删除消息失败:', error);
+                    alert('删除消息失败，请重试');
+                }
+            }
+        };
+
+        // 初始化加载
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadMessages('', 1);
+        });
+    </script>
+</body>
+</html>
