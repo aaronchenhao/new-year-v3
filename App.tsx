@@ -12,7 +12,8 @@ import {
   SENSITIVE_WARNING,
   SYSTEM_ROAST_POOL,
   UNIVERSE_WEIRD_TALK_POOL,
-  SHAKE_COMMENTS
+  SHAKE_COMMENTS,
+  filterSensitiveWords
 } from './constants';
 import { HorseType, FateWord, GameStep, MessagePool } from './types';
 import { Button } from './components/Button';
@@ -20,6 +21,83 @@ import { HorseAvatar } from './components/HorseAvatars';
 
 // Utility to get random item
 const getRandom = <T,>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)];
+
+// Get matching roast based on horse type
+const getMatchingRoast = (horseType: string): string => {
+
+  // Create horse type specific filters
+  const filters: Record<string, { include?: string[], exclude?: string[] }> = {
+    '1': { // 纯血牛马
+      include: ['工作', '压力', '消耗', '工具人', '努力', '忙'],
+      exclude: ['躺平', '摆烂', '摸鱼', '糊弄', '轻松']
+    },
+    '2': { // 极品脆皮马
+      include: ['身体', '疲惫', '亚健康', '崩溃', '虚弱'],
+      exclude: ['强壮', '精力充沛', '健康', '活力']
+    },
+    '3': { // 假装在跑马
+      include: ['表演', '摸鱼', '糊弄', '装忙', '演戏'],
+      exclude: ['努力', '专注', '认真', '真实']
+    },
+    '4': { // 被牵着走马
+      include: ['被安排', '工具人', '执行', '顺从', '没主见'],
+      exclude: ['独立', '反抗', '自主', '创新']
+    },
+    '5': { // 想逃没草马
+      include: ['想逃', '没钱', '穷', '无奈', '生存'],
+      exclude: ['财务自由', '洒脱', '自由', '富有']
+    },
+    '6': { // 躺平心虚马
+      include: ['躺平', '摆烂', '焦虑', '矛盾', '妥协'],
+      exclude: ['内卷', '奋斗', '努力', '积极']
+    },
+    '7': { // 半退休马
+      include: ['看淡', '平和', '佛系', '退休', '养生'],
+      exclude: ['内卷', '奋斗', '努力', '卷王']
+    },
+    '8': { // 已读不回马
+      include: ['沉默', '独处', '冷漠', '自闭', '安静'],
+      exclude: ['热情', '社交', '活跃', '健谈']
+    },
+    '9': { // AI 边缘马
+      include: ['科技', 'AI', '赛博', '焦虑', '边缘'],
+      exclude: ['传统', '现实', '线下', '自然']
+    },
+    '10': { // 情绪外包马
+      include: ['情绪', '麻木', '玄学', '互联网', '外包'],
+      exclude: ['真实', '感受', '情绪丰富', '线下']
+    },
+    '11': { // 天生拽马
+      include: ['个性', '拒绝', '自我', '拽', '独立'],
+      exclude: ['顺从', '妥协', '迎合', '随波逐流']
+    }
+  };
+
+  const filter = filters[horseType] || {};
+  
+  // Filter roasts
+  const matchingRoasts = SYSTEM_ROAST_POOL.filter(roast => {
+    // Check exclude words
+    if (filter.exclude && filter.exclude.some(word => roast.includes(word))) {
+      return false;
+    }
+    
+    // Check include words (if specified)
+    if (filter.include) {
+      return filter.include.some(word => roast.includes(word));
+    }
+    
+    // If no include words specified, include all
+    return true;
+  });
+
+  // If no matching roasts found, return a random one
+  if (matchingRoasts.length === 0) {
+    return getRandom(SYSTEM_ROAST_POOL);
+  }
+
+  return getRandom(matchingRoasts);
+};
 
 // ID Generator for Badge
 const generateBadgeId = () => {
@@ -268,7 +346,8 @@ export default function App() {
     if (step === GameStep.RELAY && myHorse) {
       const fetchMessage = async () => {
         try {
-          const response = await fetch(`http://82.157.244.45:3001/api/messages/${myHorse.id}`);
+          //const response = await fetch(`http://82.157.244.45:3001/api/messages/${myHorse.id}`);
+          const response = await fetch(`/api/messages/${myHorse.id}`);
           const data = await response.json();
           if (data.success) {
             setIncomingMessage(data.message);
@@ -302,7 +381,46 @@ export default function App() {
     }
   };
 
-  const generateLeaderboard = () => {
+  const generateLeaderboard = async () => {
+    try {
+      // 调用后端API获取真实数据
+      const response = await fetch('/api/stats');
+      const data = await response.json();
+      
+      if (data.success) {
+        // 处理后端返回的数据
+        const stats = HORSE_TYPES.map(h => ({
+          ...h,
+          count: parseInt(data.stats[h.id]) || 0
+        }));
+        
+        // 计算总数
+        const total = stats.reduce((acc, curr) => acc + curr.count, 0);
+        
+        // 计算百分比并排序
+        const sorted = stats
+          .map(s => ({
+            horseName: s.name,
+            id: s.id,
+            percentage: total > 0 ? Math.round((s.count / total) * 100) : 0
+          }))
+          .sort((a, b) => b.percentage - a.percentage);
+        
+        // 取前5名
+        setLeaderboardData(sorted.slice(0, 5));
+      } else {
+        // API失败时使用降级方案
+        useFallbackLeaderboard();
+      }
+    } catch (error) {
+      console.error('获取排行榜数据失败:', error);
+      // 网络错误时使用降级方案
+      useFallbackLeaderboard();
+    }
+  };
+
+  // 降级方案：使用模拟数据
+  const useFallbackLeaderboard = () => {
     const stats = HORSE_TYPES.map(h => ({
       ...h,
       count: Math.floor(Math.random() * 500) + 50 
@@ -330,14 +448,22 @@ export default function App() {
       setUsernameError("怎么也得整个牛马代号吧？");
       return;
     }
-    if (username.length < 3) {
-      setUsernameError("牛马代号太短了，至少3个字！");
+    if (username.length < 1) {
+      setUsernameError("牛马代号太短了，至少1个字！");
       return;
     }
     if (username.length > 12) {
       setUsernameError("牛马代号太长了，最多12个字！");
       return;
     }
+    
+    // 过滤敏感词
+    const filteredUsername = filterSensitiveWords(username);
+    if (filteredUsername !== username) {
+      // 更新为过滤后的用户名
+      setUsername(filteredUsername);
+    }
+    
     setUsernameError('');
     setStep(GameStep.SELECT_HORSE);
   };
@@ -366,8 +492,8 @@ export default function App() {
           const randomFate = getRandom(FATE_WORDS);
           setMyFate(randomFate);
           
-          // Select a random system roast for the LAST page, but store it now
-          setRandomSysRoast(getRandom(SYSTEM_ROAST_POOL));
+          // Select a matching system roast based on horse type
+          setRandomSysRoast(getMatchingRoast(myHorse?.id || '1'));
           
           setIsShaking(false);
           setShowFateResult(true);
@@ -381,28 +507,28 @@ export default function App() {
       return;
     }
     
-    // Only perform sensitive word checks if the input is MANUALLY typed (not from random pool)
+    // Only perform forbidden blessings checks if the input is MANUALLY typed (not from random pool)
     if (!isFromRandomPool) {
       const hasBlessing = FORBIDDEN_BLESSINGS.some(word => userRelayInput.includes(word));
       if (hasBlessing) {
         setErrorMsg(getRandom(FORBIDDEN_WARNINGS));
         return;
       }
-      const hasSensitive = SENSITIVE_WORDS.some(word => userRelayInput.toLowerCase().includes(word));
-      if (hasSensitive) {
-        setErrorMsg(SENSITIVE_WARNING);
-        return;
-      }
     }
+    
+    // 过滤敏感词
+    const filteredContent = filterSensitiveWords(userRelayInput);
+    const filteredUsername = filterSensitiveWords(username);
     
     try {
       // 提交消息到后端
-      const response = await fetch(`http://82.157.244.45:3001/api/messages/${myHorse?.id}`, {
+      //const response = await fetch(`http://82.157.244.45:3001/api/messages/${myHorse?.id}`, {
+        const response = await fetch(`/api/messages/${myHorse?.id}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ content: userRelayInput, username }),
+        body: JSON.stringify({ content: filteredContent, username: filteredUsername }),
       });
       
       const data = await response.json();
@@ -411,11 +537,11 @@ export default function App() {
         setToastType("success");
         setShowToast(true);
         
-        setTimeout(() => {
+        setTimeout(async () => {
           bgmRef.current?.stop();
           setShowToast(false);
           if (Math.random() > 0.6) {
-            generateLeaderboard();
+            await generateLeaderboard();
             setShowLeaderboard(true);
           } else {
             setStep(GameStep.RESULT);
@@ -560,7 +686,7 @@ export default function App() {
           
           <p className="text-xs font-black text-[#8B0000] opacity-70 text-left">
             🐂 牛马代号将作为你在牛马宇宙的身份标识<br/>
-            🐎 长度3-12字，越牛马越好
+            🐎 长度1-12字，越牛马越好
           </p>
         </div>
       </div>
@@ -726,19 +852,19 @@ export default function App() {
           <div className="relative">
              <textarea
               rows={3}
-              maxLength={isFromRandomPool ? 200 : 12}
+              maxLength={isFromRandomPool ? 200 : 30}
               value={userRelayInput}
               onChange={(e) => { 
                 setUserRelayInput(e.target.value); 
                 setErrorMsg(''); 
                 setIsFromRandomPool(false); // Mark as manually typed
               }}
-              placeholder="最多12字..."
+              placeholder="最多30字..."
               className={`w-full p-4 text-lg border-2 border-black rounded-2xl bg-[#FFFDF7] placeholder-[#D7CCC8] text-[#4A2722] focus:outline-none focus:ring-4 focus:ring-[#FFD700] shadow-inner resize-none`}
             />
             {!isFromRandomPool && (
               <div className="absolute right-4 bottom-4 text-xs font-bold text-[#A1887F]">
-                {userRelayInput.length}/12
+                {userRelayInput.length}/30
               </div>
             )}
           </div>
