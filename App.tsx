@@ -580,6 +580,9 @@ export default function App() {
           height: 667,
           scrollX: 0,
           scrollY: 0,
+          // 增加配置项以改善渲染效果
+          letterRendering: true,
+          useForeignObjectForSVG: false
         });
         images.push(canvas.toDataURL('image/png'));
       }
@@ -737,8 +740,8 @@ export default function App() {
       return (
         <div className="flex-1 flex flex-col items-center justify-center px-6 w-full animate-pop relative">
            <div className="bg-[#FFFDF7] p-8 rounded-[2.5rem] w-full max-w-xs pop-shadow border-4 border-black flex flex-col items-center text-center relative z-10">
-               <div className="w-32 h-32 mb-6 bg-[#FFD700]/20 rounded-full flex items-center justify-center p-2 border-2 border-[#FFD700] border-dashed">
-                  <HorseAvatar id={myHorse?.id || '1'} className="w-24 h-24" />
+               <div className="w-36 h-36 mb-6 bg-[#FFD700]/20 rounded-full flex items-center justify-center p-2 border-2 border-[#FFD700] border-dashed overflow-hidden">
+                  <HorseAvatar id={myHorse?.id || '1'} className="w-32 h-32" />
                </div>
                <h2 className="text-2xl font-black text-[#9B1C1C] mb-2">{myHorse?.name}</h2>
                <p className="text-sm text-[#4A2722] mb-8 font-bold">准备好面对你的 2026 命运了吗？</p>
@@ -838,7 +841,7 @@ export default function App() {
               {incomingMessageUsername && (
                 <div className="mt-2 text-xs font-bold text-[#A1887F] flex items-center justify-end gap-1">
                   <span>🐎</span>
-                  <span>来自上一匹{incomingMessageUsername}的祝福</span>
+                  <span>来自[{incomingMessageUsername}]的祝福</span>
                 </div>
               )}
            </div>
@@ -934,8 +937,8 @@ export default function App() {
                      </div>
 
                      {/* Avatar - Moved up to overlap more (top-8 instead of top-10) */}
-                     <div className="absolute top-8 left-1/2 -translate-x-1/2 w-24 h-24 bg-[#FFF] rounded-full border-4 border-black flex items-center justify-center z-20 shadow-lg">
-                        <HorseAvatar id={myHorse?.id || '1'} className="w-16 h-16" />
+                     <div className="absolute top-8 left-1/2 -translate-x-1/2 w-24 h-24 bg-[#FFF] rounded-full border-4 border-black flex items-center justify-center z-20 shadow-lg overflow-hidden">
+                        <HorseAvatar id={myHorse?.id || '1'} className="w-20 h-20" />
                      </div>
 
                      {/* Content Body - Compact spacing */}
@@ -1146,92 +1149,78 @@ export default function App() {
     return (
       <div ref={printerRef} style={printerWrapperStyle}>
          
-         {/* Scene 1: Landing Poster - Matched to renderLanding layout */}
-         <div className="print-scene" style={sceneStyle}>
-            {/* Top Decor - Matched to renderLanding */}
-            <div style={{ position: 'absolute', top: '16px', left: '0', right: '0', zIndex: 0, display: 'flex', justifyContent: 'space-between', padding: '0 8px' }}>
-              <div className="transform -rotate-6">
-                <div className="w-0.5 bg-[#4A2722] h-16 mx-auto opacity-50"></div>
-                <div className="w-16 h-20 bg-[#FF0000] border-2 border-black rounded-2xl relative flex items-center justify-center">
-                  <div className="w-12 h-16 bg-[#D32F2F] rounded-xl flex items-center justify-center border border-black/10">
-                    <span className="text-[#FFD700] font-serif font-black text-2xl drop-shadow-md">牛</span>
-                  </div>
-                  <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 flex gap-1">
-                    <div className="w-1 h-6 bg-[#FFD700] rounded-full border border-black/20"></div>
-                    <div className="w-1 h-8 bg-[#FFD700] rounded-full border border-black/20"></div>
-                    <div className="w-1 h-6 bg-[#FFD700] rounded-full border border-black/20"></div>
-                  </div>
-                </div>
-              </div>
-              <div className="transform rotate-6">
-                <div className="w-0.5 bg-[#4A2722] h-16 mx-auto opacity-50"></div>
-                <div className="w-16 h-20 bg-[#FF0000] border-2 border-black rounded-2xl relative flex items-center justify-center">
-                  <div className="w-12 h-16 bg-[#D32F2F] rounded-xl flex items-center justify-center border border-black/10">
-                    <span className="text-[#FFD700] font-serif font-black text-2xl drop-shadow-md">马</span>
-                  </div>
-                  <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 flex gap-1">
-                    <div className="w-1 h-6 bg-[#FFD700] rounded-full border border-black/20"></div>
-                    <div className="w-1 h-8 bg-[#FFD700] rounded-full border border-black/20"></div>
-                    <div className="w-1 h-6 bg-[#FFD700] rounded-full border border-black/20"></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            {/* Main Card - Matched to renderLanding */}
-            <div className="relative w-full max-w-xs bg-[#FFFDF7] rounded-[2rem] border-4 border-black p-6 flex flex-col items-center text-center space-y-4 z-10 mt-24">
-              <div className="space-y-1">
-                <h2 className="text-xs font-black text-[#8B0000] tracking-widest bg-[#FFD700] border-2 border-black px-3 py-1 rounded-full inline-block transform -rotate-2">2026 马年限定</h2>
-                <h1 className="text-5xl font-black text-[#9B1C1C] leading-none drop-shadow-sm">牛马<br/>宇宙</h1>
-              </div>
-              <div className="relative w-32 h-40 mt-8">
-                <HorseAvatar id="11" expressionOverride="rolling_eyes" className="w-full h-full" />
-              </div>
-              <p className="text-sm font-black text-[#8B0000] opacity-80">🧧 今年不拜年，只鉴马</p>
-            </div>
-         </div>
-
-         {/* Scene 2: Fate Word Poster */}
-         <div className="print-scene" style={sceneStyle}>
-             <div className="bg-[#FFFDF7] p-8 rounded-[2rem] border-4 border-black w-full flex flex-col items-center text-center">
-                 <div className="bg-[#FFD700] w-full p-2 mb-4 border-b-2 border-black text-center">
-                    <h3 className="text-[#9B1C1C] font-black text-xl tracking-widest">✨ 年度一字 ✨</h3>
-                 </div>
-                 {/* Fixed: Adjusted margin to prevent overlap */}
-                 <div className="text-[6rem] font-black text-[#9B1C1C] leading-none mb-12 mt-2">{myFate?.word || '命'}</div>
-                 <div className="w-full bg-[#FFF0F0] border-2 border-[#9B1C1C]/20 rounded-2xl p-4 text-left space-y-3">
-                     <p className="text-xl font-bold text-[#9B1C1C]">{myFate?.modern_meaning || '命运加载中'}</p>
-                     <p className="text-sm font-bold text-[#4A2722] italic">系统评: {myFate?.roast || '...'}</p>
-                 </div>
-             </div>
-         </div>
-
-         {/* Scene 3: Badge Poster (WITH QR) */}
+         {/* Single Scene: Combined Poster */}
          <div className="print-scene" style={sceneStyle}>
              {/* Couplets positions manually */}
              <div style={{position: 'absolute', top: '5rem', left: '1rem'}}><Couplet text="摸鱼划水技艺高" side="left" /></div>
              <div style={{position: 'absolute', top: '5rem', right: '1rem'}}><Couplet text="带薪拉屎身体棒" side="right" /></div>
              
-             {/* Simple Badge Reproduction for Print */}
+             {/* Combined Poster */}
              <div className="w-[280px] bg-[#FFFDF7] rounded-[2rem] border-4 border-black relative z-10 flex flex-col mt-4 shadow-xl">
                  <div className="bg-[#D32F2F] h-20 w-full border-b-4 border-black relative rounded-t-[1.7rem] overflow-hidden"></div>
-                 <div className="absolute top-8 left-1/2 -translate-x-1/2 w-24 h-24 bg-[#FFF] rounded-full border-4 border-black flex items-center justify-center z-20">
-                    <HorseAvatar id={myHorse?.id || '1'} className="w-16 h-16" />
+                 
+                 {/* Avatar */}
+                 <div style={{
+                   position: 'absolute',
+                   top: '32px',
+                   left: '50%',
+                   marginLeft: '-48px',
+                   width: '96px',
+                   height: '96px',
+                   backgroundColor: '#FFF',
+                   borderRadius: '50%',
+                   border: '4px solid black',
+                   overflow: 'hidden',
+                   zIndex: 20,
+                   display: 'flex',
+                   alignItems: 'center',
+                   justifyContent: 'center'
+                 }}>
+                    <img
+                      src={`/horse-avatars/${myHorse?.id || '1'}.png`}
+                      alt={`Horse ${myHorse?.id || '1'}`}
+                      style={{
+                        width: '80%',
+                        height: '80%',
+                        display: 'block',
+                        objectFit: 'cover'
+                      }}
+                    />
                  </div>
-                 <div className="pt-12 pb-6 px-6 flex flex-col items-center text-center">
-                     <div className="mb-2 bg-[#FFD700] border-2 border-black px-3 py-1 rounded-full text-xs font-black text-[#4A2722]">神马 · 2026</div>
-                     <h1 className="text-3xl font-black text-[#9B1C1C] mb-1">{myHorse?.name}</h1>
-                     <div className="text-sm font-bold text-[#5D4037] mb-2">牛马代号：{username}</div>
-                     <div className="text-sm font-bold text-[#5D4037] mb-4">状态：{myFate?.word}着</div>
-                     <div className="w-full bg-[#FFF0F0] border-2 border-[#D32F2F] rounded-xl p-2 relative text-left">
+                 
+                 {/* Content Body */}
+                 <div className="pt-16 pb-6 px-6 flex flex-col items-center text-center">
+                     <div className="mb-2 bg-[#FFD700] border-2 border-black px-4 py-2 rounded-full text-xs font-black text-[#4A2722] flex items-center justify-center min-h-[32px]">
+                       <span style={{lineHeight: '1'}}>神马 · 2026</span>
+                     </div>
+                     
+                     {/* Horse Type */}
+                     <h1 className="text-3xl font-black text-[#9B1C1C] mb-4">{myHorse?.name}</h1>
+                     
+                     {/* Fate Word */}
+                     <div className="bg-[#FFEEEE] rounded-full px-8 py-3 mb-4 border-2 border-[#FFD700] flex items-center justify-center min-h-[40px]">
+                       <span className="text-2xl font-black text-[#9B1C1C]" style={{lineHeight: '1'}}>{myFate?.word || '命'}</span>
+                     </div>
+                     
+                     {/* Info */}
+                     <div className="w-full space-y-2 mb-4">
+                       <div className="text-sm font-bold text-[#5D4037]">牛马代号：{username}</div>
+                       <div className="text-sm font-bold text-[#5D4037]">状态：{myFate?.word}着</div>
+                     </div>
+                     
+                     {/* System Roast */}
+                     <div className="w-full bg-[#FFF0F0] border-2 border-[#D32F2F] rounded-xl p-3 relative text-left mb-4">
                         <p className="text-xs font-bold text-[#4A2722]">{myFate?.roast}</p>
                         <p className="text-xs font-normal text-[#9B1C1C] mt-1 opacity-80">PS: {randomSysRoast}</p>
                      </div>
-                     <div className="mt-4 font-mono text-sm font-bold text-[#9B1C1C] opacity-60">{badgeId}</div>
+                     
+                     {/* Badge ID */}
+                     <div className="mt-2 font-mono text-sm font-bold text-[#9B1C1C] opacity-60">{badgeId}</div>
                  </div>
              </div>
              
-             <div className="mt-8 bg-white p-2 rounded-xl border-2 border-black z-20">
+             {/* QR Code */}
+             <div className="mt-4 bg-white p-2 rounded-xl border-2 border-black z-20">
                  <img src="/logo.png" className="w-20 h-20" />
              </div>
          </div>
