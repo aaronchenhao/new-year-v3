@@ -27,49 +27,49 @@ const getMatchingRoast = (horseType: string): string => {
 
   // Create horse type specific filters
   const filters: Record<string, { include?: string[], exclude?: string[] }> = {
-    '1': { // 纯血牛马
-      include: ['工作', '压力', '消耗', '工具人', '努力', '忙'],
-      exclude: ['躺平', '摆烂', '摸鱼', '糊弄', '轻松']
+    '1': { // 純血牛馬
+      include: ['工作', '壓力', '消耗', '工具人', '努力', '忙'],
+      exclude: ['躺平', '擺爛', '摸魚', '糊弄', '輕鬆']
     },
-    '2': { // 极品脆皮马
-      include: ['身体', '疲惫', '亚健康', '崩溃', '虚弱'],
-      exclude: ['强壮', '精力充沛', '健康', '活力']
+    '2': { // 極品脆皮馬
+      include: ['身體', '疲憊', '亞健康', '崩潰', '虛弱'],
+      exclude: ['強壯', '精力充沛', '健康', '活力']
     },
-    '3': { // 假装在跑马
-      include: ['表演', '摸鱼', '糊弄', '装忙', '演戏'],
-      exclude: ['努力', '专注', '认真', '真实']
+    '3': { // 假裝在跑馬
+      include: ['表演', '摸魚', '糊弄', '裝忙', '演戲'],
+      exclude: ['努力', '專注', '認真', '真實']
     },
-    '4': { // 被牵着走马
-      include: ['被安排', '工具人', '执行', '顺从', '没主见'],
-      exclude: ['独立', '反抗', '自主', '创新']
+    '4': { // 被牽著走馬
+      include: ['被安排', '工具人', '執行', '順從', '沒主見'],
+      exclude: ['獨立', '反抗', '自主', '創新']
     },
-    '5': { // 想逃没草马
-      include: ['想逃', '没钱', '穷', '无奈', '生存'],
-      exclude: ['财务自由', '洒脱', '自由', '富有']
+    '5': { // 想逃沒草馬
+      include: ['想逃', '沒錢', '窮', '無奈', '生存'],
+      exclude: ['財務自由', '灑脫', '自由', '富有']
     },
-    '6': { // 躺平心虚马
-      include: ['躺平', '摆烂', '焦虑', '矛盾', '妥协'],
-      exclude: ['内卷', '奋斗', '努力', '积极']
+    '6': { // 躺平心虛馬
+      include: ['躺平', '擺爛', '焦慮', '矛盾', '妥協'],
+      exclude: ['內卷', '奮鬥', '努力', '積極']
     },
-    '7': { // 半退休马
-      include: ['看淡', '平和', '佛系', '退休', '养生'],
-      exclude: ['内卷', '奋斗', '努力', '卷王']
+    '7': { // 半退休馬
+      include: ['看淡', '平和', '佛系', '退休', '養生'],
+      exclude: ['內卷', '奮鬥', '努力', '卷王']
     },
-    '8': { // 已读不回马
-      include: ['沉默', '独处', '冷漠', '自闭', '安静'],
-      exclude: ['热情', '社交', '活跃', '健谈']
+    '8': { // 已讀不回馬
+      include: ['沉默', '獨處', '冷漠', '自閉', '安靜'],
+      exclude: ['熱情', '社交', '活躍', '健談']
     },
-    '9': { // AI 边缘马
-      include: ['科技', 'AI', '赛博', '焦虑', '边缘'],
-      exclude: ['传统', '现实', '线下', '自然']
+    '9': { // AI 邊緣馬
+      include: ['科技', 'AI', '賽博', '焦慮', '邊緣'],
+      exclude: ['傳統', '現實', '線下', '自然']
     },
-    '10': { // 情绪外包马
-      include: ['情绪', '麻木', '玄学', '互联网', '外包'],
-      exclude: ['真实', '感受', '情绪丰富', '线下']
+    '10': { // 情緒外包馬
+      include: ['情緒', '麻木', '玄學', '互聯網', '外包'],
+      exclude: ['真實', '感受', '情緒豐富', '線下']
     },
-    '11': { // 天生拽马
-      include: ['个性', '拒绝', '自我', '拽', '独立'],
-      exclude: ['顺从', '妥协', '迎合', '随波逐流']
+    '11': { // 天生拽馬
+      include: ['個性', '拒絕', '自我', '拽', '獨立'],
+      exclude: ['順從', '妥協', '迎合', '隨波逐流']
     }
   };
 
@@ -353,12 +353,12 @@ export default function App() {
             setIncomingMessage(data.message);
             setIncomingMessageUsername(data.username || '');
           } else {
-            setIncomingMessage(data.message || "这是你的首条马蹄印，没人接你哦");
+            setIncomingMessage(data.message || "這是你的首條馬蹄印，沒人接你哦");
             setIncomingMessageUsername(data.username || '');
           }
         } catch (error) {
-          console.error('获取消息失败:', error);
-          setIncomingMessage("这是你的首条马蹄印，没人接你哦");
+          console.error('獲取消息失敗:', error);
+          setIncomingMessage("這是你的首條馬蹄印，沒人接你哦");
           setIncomingMessageUsername('');
         }
       };
@@ -383,21 +383,21 @@ export default function App() {
 
   const generateLeaderboard = async () => {
     try {
-      // 调用后端API获取真实数据
+      // 調用後端API獲取真實數據
       const response = await fetch('/api/stats');
       const data = await response.json();
       
       if (data.success) {
-        // 处理后端返回的数据
+        // 處理後端返回的數據
         const stats = HORSE_TYPES.map(h => ({
           ...h,
           count: parseInt(data.stats[h.id]) || 0
         }));
         
-        // 计算总数
+        // 計算總數
         const total = stats.reduce((acc, curr) => acc + curr.count, 0);
         
-        // 计算百分比并排序
+        // 計算百分比並排序
         const sorted = stats
           .map(s => ({
             horseName: s.name,
@@ -409,17 +409,17 @@ export default function App() {
         // 取前5名
         setLeaderboardData(sorted.slice(0, 5));
       } else {
-        // API失败时使用降级方案
+        // API失敗時使用降級方案
         useFallbackLeaderboard();
       }
     } catch (error) {
-      console.error('获取排行榜数据失败:', error);
-      // 网络错误时使用降级方案
+      console.error('獲取排行榜數據失敗:', error);
+      // 網絡錯誤時使用降級方案
       useFallbackLeaderboard();
     }
   };
 
-  // 降级方案：使用模拟数据
+  // 降級方案：使用模擬數據
   const useFallbackLeaderboard = () => {
     const stats = HORSE_TYPES.map(h => ({
       ...h,
@@ -445,22 +445,22 @@ export default function App() {
 
   const handleUsernameSubmit = () => {
     if (!username.trim()) {
-      setUsernameError("怎么也得整个牛马代号吧？");
+      setUsernameError("怎麼也得整個牛馬代號吧？");
       return;
     }
     if (username.length < 1) {
-      setUsernameError("牛马代号太短了，至少1个字！");
+      setUsernameError("牛馬代號太短了，至少1個字！");
       return;
     }
     if (username.length > 12) {
-      setUsernameError("牛马代号太长了，最多12个字！");
+      setUsernameError("牛馬代號太長了，最多12個字！");
       return;
     }
     
-    // 过滤敏感词
+    // 過濾敏感詞
     const filteredUsername = filterSensitiveWords(username);
     if (filteredUsername !== username) {
-      // 更新为过滤后的用户名
+      // 更新為過濾後的用戶名
       setUsername(filteredUsername);
     }
     
@@ -503,7 +503,7 @@ export default function App() {
 
   const handleRelaySubmit = async () => {
     if (!userRelayInput.trim()) {
-      setErrorMsg("怎么也得哼哼两句吧？");
+      setErrorMsg("怎麼也得哼哼兩句吧？");
       return;
     }
     
@@ -516,12 +516,12 @@ export default function App() {
       }
     }
     
-    // 过滤敏感词
+    // 過濾敏感詞
     const filteredContent = filterSensitiveWords(userRelayInput);
     const filteredUsername = filterSensitiveWords(username);
     
     try {
-      // 提交消息到后端
+      // 提交消息到後端
       //const response = await fetch(`http://82.157.244.45:3001/api/messages/${myHorse?.id}`, {
         const response = await fetch(`/api/messages/${myHorse?.id}`, {
         method: 'POST',
@@ -533,7 +533,7 @@ export default function App() {
       
       const data = await response.json();
       if (data.success) {
-        setToastMessage("🎉 传递成功");
+        setToastMessage("🎉 傳遞成功");
         setToastType("success");
         setShowToast(true);
         
@@ -548,11 +548,11 @@ export default function App() {
           }
         }, 1200);
       } else {
-        setErrorMsg(data.message || "消息传递失败，请重试");
+        setErrorMsg(data.message || "訊息傳遞失敗，請重試");
       }
     } catch (error) {
-      console.error('提交消息失败:', error);
-      setErrorMsg("网络错误，请重试");
+      console.error('提交消息失敗:', error);
+      setErrorMsg("網路錯誤，請重試");
     }
   };
 
@@ -580,7 +580,7 @@ export default function App() {
           height: 667,
           scrollX: 0,
           scrollY: 0,
-          // 增加配置项以改善渲染效果
+          // 增加配置項以改善渲染效果
           letterRendering: true,
           useForeignObjectForSVG: false
         });
@@ -588,8 +588,8 @@ export default function App() {
       }
       setGeneratedImages(images);
     } catch (err) {
-      console.error('生成图片失败:', err);
-      setToastMessage("生成失败，请重试");
+      console.error('生成圖片失敗:', err);
+      setToastMessage("生成失敗，請重試");
       setToastType("error");
       setShowToast(true);
     } finally {
@@ -602,7 +602,7 @@ export default function App() {
       {/* Top Decor */}
       <div className="absolute top-4 w-full flex justify-between px-8 pointer-events-none z-0">
           <Lantern className="relative transform -rotate-6" text="牛" />
-          <Lantern className="relative transform rotate-6 scale-90" text="马" />
+          <Lantern className="relative transform rotate-6 scale-90" text="馬" />
       </div>
 
       {[...Array(6)].map((_, i) => (
@@ -613,9 +613,9 @@ export default function App() {
       <div className="relative w-full max-w-xs bg-[#FFFDF7] rounded-[2rem] pop-shadow border-4 border-black p-6 flex flex-col items-center text-center space-y-4 animate-pop z-10 mt-4">
         
         <div className="space-y-1">
-           <h2 className="text-xs font-black text-[#8B0000] tracking-widest bg-[#FFD700] border-2 border-black px-3 py-1 rounded-full inline-block transform -rotate-2">2026 马年限定</h2>
+           <h2 className="text-xs font-black text-[#8B0000] tracking-widest bg-[#FFD700] border-2 border-black px-3 py-1 rounded-full inline-block transform -rotate-2">2026 馬年限定</h2>
            <h1 className="text-5xl font-black text-[#9B1C1C] leading-none drop-shadow-sm">
-             牛马<br/>宇宙
+             牛馬<br/>宇宙
            </h1>
         </div>
 
@@ -627,14 +627,14 @@ export default function App() {
         </div>
 
         <p className="text-sm font-black text-[#8B0000] opacity-80">
-           🧧 今年不拜年，只鉴马
+           🧧 今年不拜年，只鑑馬
         </p>
       </div>
 
       {/* Button Area */}
       <div className="z-10 w-full max-w-xs space-y-4 mt-8">
         <Button onClick={handleStart} className="w-full shadow-xl border-2 border-black" variant="primary">
-          🚪 敲门进入
+          🚪 敲門進入
         </Button>
       </div>
     </div>
@@ -645,7 +645,7 @@ export default function App() {
       {/* Top Decor */}
       <div className="absolute top-4 w-full flex justify-between px-8 pointer-events-none z-0">
           <Lantern className="relative transform -rotate-6" text="牛" />
-          <Lantern className="relative transform rotate-6 scale-90" text="马" />
+          <Lantern className="relative transform rotate-6 scale-90" text="馬" />
       </div>
 
       {[...Array(6)].map((_, i) => (
@@ -656,9 +656,9 @@ export default function App() {
       <div className="relative w-full max-w-xs bg-[#FFFDF7] rounded-[2rem] pop-shadow border-4 border-black p-6 flex flex-col items-center text-center space-y-6 animate-pop z-10 mt-4">
         
         <div className="space-y-2">
-           <h2 className="text-xs font-black text-[#8B0000] tracking-widest bg-[#FFD700] border-2 border-black px-3 py-1 rounded-full inline-block transform -rotate-2">牛马登记处</h2>
+           <h2 className="text-xs font-black text-[#8B0000] tracking-widest bg-[#FFD700] border-2 border-black px-3 py-1 rounded-full inline-block transform -rotate-2">牛馬登記處</h2>
            <h1 className="text-4xl font-black text-[#9B1C1C] leading-none drop-shadow-sm">
-             请输入<br/>牛马代号
+             請輸入<br/>牛馬代號
            </h1>
         </div>
 
@@ -672,7 +672,7 @@ export default function App() {
                 setUsername(e.target.value);
                 setUsernameError('');
               }}
-              placeholder="请输入你的牛马代号"
+              placeholder="請輸入你的牛馬代號"
               maxLength={12}
               className="w-full p-4 text-lg border-2 border-black rounded-2xl bg-white placeholder-[#D7CCC8] text-[#4A2722] focus:outline-none focus:ring-4 focus:ring-[#FFD700] shadow-inner"
             />
@@ -688,8 +688,8 @@ export default function App() {
           )}
           
           <p className="text-xs font-black text-[#8B0000] opacity-70 text-left">
-            🐂 牛马代号将作为你在牛马宇宙的身份标识<br/>
-            🐎 长度1-12字，越牛马越好
+            🐂 牛馬代號將作為你在牛馬宇宙的身份標識<br/>
+            🐎 長度1-12字，越牛馬越好
           </p>
         </div>
       </div>
@@ -697,7 +697,7 @@ export default function App() {
       {/* Button Area */}
       <div className="z-10 w-full max-w-xs space-y-4 mt-8">
         <Button onClick={handleUsernameSubmit} className="w-full shadow-xl border-2 border-black" variant="primary">
-          🐎 确认代号
+          🐎 確認代號
         </Button>
       </div>
     </div>
@@ -706,10 +706,10 @@ export default function App() {
   const renderSelectHorse = () => (
     <div className="flex flex-col h-full w-full relative">
       <header className="text-center py-6 sticky top-0 z-20 shrink-0 bg-gradient-to-b from-[#8B0000] to-transparent">
-        <h2 className="text-2xl font-black text-[#FFD700] drop-shadow-md text-stroke">Step 1: 认领你的品种</h2>
+        <h2 className="text-2xl font-black text-[#FFD700] drop-shadow-md text-stroke">Step 1: 認領你的品種</h2>
         <div className="mt-2 inline-block bg-white/10 backdrop-blur-md rounded-full px-4 py-1 border border-[#FFD700]/30">
           <div className="text-xs text-[#FFD700] font-bold whitespace-nowrap animate-soft-pulse">
-            📢 宇宙广播: {marqueeTalk}
+            📢 宇宙廣播: {marqueeTalk}
           </div>
         </div>
       </header>
@@ -744,10 +744,10 @@ export default function App() {
                   <HorseAvatar id={myHorse?.id || '1'} className="w-32 h-32" />
                </div>
                <h2 className="text-2xl font-black text-[#9B1C1C] mb-2">{myHorse?.name}</h2>
-               <p className="text-sm text-[#4A2722] mb-8 font-bold">准备好面对你的 2026 命运了吗？</p>
+               <p className="text-sm text-[#4A2722] mb-8 font-bold">準備好面對你的 2026 命運了嗎？</p>
                
                <Button onClick={handleStartShake} variant="primary" fullWidth className="text-xl border-2 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)]">
-                  👋 摇一摇求签
+                  👋 搖一搖求籤
                </Button>
            </div>
         </div>
@@ -776,11 +776,11 @@ export default function App() {
                  <path d="M50,70 Q50,210 50,210" stroke="white" strokeWidth="8" strokeLinecap="round" opacity="0.3" />
                  <path d="M40,60 Q40,80 100,80 Q160,80 160,60" fill="#D32F2F" stroke="black" strokeWidth="3" />
                  <rect x="70" y="90" width="60" height="70" fill="#FFD700" stroke="black" strokeWidth="3" rx="4" transform="rotate(-2 100 125)" />
-                 <text x="100" y="135" textAnchor="middle" fill="#B71C1C" fontSize="40" fontWeight="bold" fontFamily="serif" transform="rotate(-2 100 125)">签</text>
+                 <text x="100" y="135" textAnchor="middle" fill="#B71C1C" fontSize="40" fontWeight="bold" fontFamily="serif" transform="rotate(-2 100 125)">籤</text>
              </svg>
           </div>
           <div className="mt-12 text-[#FFD700] font-black text-2xl animate-pulse drop-shadow-md text-stroke">
-             正在摇出你的马生...
+             正在搖出你的馬生...
           </div>
         </div>
       );
@@ -805,7 +805,7 @@ export default function App() {
                  </div>
                  
                  <div className="flex gap-3">
-                    <span className="bg-[#D32F2F] text-white text-xs font-bold px-2 py-1 rounded-md h-fit whitespace-nowrap">人话</span>
+                    <span className="bg-[#D32F2F] text-white text-xs font-bold px-2 py-1 rounded-md h-fit whitespace-nowrap">人話</span>
                     <p className="text-base font-bold text-[#9B1C1C]">{myFate?.modern_meaning}</p>
                  </div>
 
@@ -814,14 +814,14 @@ export default function App() {
                  <div className="flex gap-3 items-start">
                     <span className="text-2xl leading-none pt-1">🌚</span>
                     <div className="flex flex-col">
-                        <span className="text-xs bg-[#D32F2F] text-white px-1.5 py-0.5 rounded w-fit mb-1 font-bold">系统锐评</span>
+                        <span className="text-xs bg-[#D32F2F] text-white px-1.5 py-0.5 rounded w-fit mb-1 font-bold">系統銳評</span>
                         <p className="text-sm font-bold text-[#4A2722] italic leading-relaxed text-left">{myFate?.roast}</p>
                     </div>
                  </div>
              </div>
              
              <Button onClick={() => setStep(GameStep.RELAY)} fullWidth variant="primary" className="mt-6 border-2 border-black">
-               就这样吧 (下一步)
+               就這樣吧 (下一步)
              </Button>
           </div>
         </div>
@@ -834,14 +834,14 @@ export default function App() {
       <div className="flex-1 flex flex-col justify-center space-y-6">
         <div className="relative">
            <div className="absolute -top-3 left-4 bg-[#D32F2F] text-white px-3 py-1 text-xs font-bold rounded-full z-10 shadow-sm border border-black">
-              📬 来自上一匹{myHorse?.name}的祝福
+              📬 來自上一匹{myHorse?.name}的祝福
            </div>
            <div className="bg-[#FFFDF7] p-6 rounded-[2rem] pop-shadow border-4 border-black font-bold text-lg text-[#9B1C1C] relative">
               “{incomingMessage}”
               {incomingMessageUsername && (
                 <div className="mt-2 text-xs font-bold text-[#A1887F] flex items-center justify-end gap-1">
                   <span>🐎</span>
-                  <span>来自[{incomingMessageUsername}]的祝福</span>
+                  <span>來自[{incomingMessageUsername}]的祝福</span>
                 </div>
               )}
            </div>
@@ -849,7 +849,7 @@ export default function App() {
 
         <div className="bg-white/20 backdrop-blur-md p-4 rounded-[2rem] border-2 border-[#FFD700]/50 space-y-4">
           <label className="block text-[#FFD700] font-black text-xl mb-2 flex items-center gap-2 pl-2 drop-shadow-md">
-            <Send className="w-5 h-5"/> 留下马蹄印
+            <Send className="w-5 h-5"/> 留下馬蹄印
           </label>
           
           <div className="relative">
@@ -887,7 +887,7 @@ export default function App() {
               }}
               className="w-full bg-[#DCD3FF] hover:bg-[#C5B3FF] text-[#4A2722] font-bold rounded-2xl border-2 border-black flex items-center justify-center gap-2 active:scale-95 pop-shadow py-3"
             >
-               <Dice5 className="w-5 h-5" /> 随机整一句
+               <Dice5 className="w-5 h-5" /> 隨機整一句
             </button>
           </div>
 
@@ -900,7 +900,7 @@ export default function App() {
       </div>
       
       <Button onClick={handleRelaySubmit} fullWidth variant="primary" className="mt-4 border-2 border-black">
-        🚀 扔进宇宙
+        🚀 扔進宇宙
       </Button>
     </div>
   );
@@ -908,8 +908,8 @@ export default function App() {
   const renderResult = () => (
     <div className="flex flex-col h-full w-full items-center p-4 relative overflow-hidden">
        {/* Background Couplets - Aligned at top-24 */}
-       <Couplet text="摸鱼划水技艺高" side="left" />
-       <Couplet text="带薪拉屎身体棒" side="right" />
+       <Couplet text="摸魚劃水技藝高" side="left" />
+       <Couplet text="帶薪拉屎身體棒" side="right" />
 
        {/* Main Content Container - Flex space-between to manage gaps */}
        <div className="flex-1 w-full z-10 relative flex flex-col items-center h-full pt-20 pb-4">
@@ -944,7 +944,7 @@ export default function App() {
                      {/* Content Body - Compact spacing */}
                      <div className="pt-12 pb-5 px-5 flex flex-col items-center text-center relative">
                          <div className="mb-1 bg-[#FFD700] border-2 border-black px-3 py-0.5 rounded-full text-[10px] font-black text-[#4A2722] transform -rotate-2">
-                            神马 · 2026
+                            神馬 · 2026
                          </div>
                          <h1 className="text-2xl font-black text-[#9B1C1C] mb-1 relative z-10">
                             {myHorse?.name}
@@ -953,24 +953,24 @@ export default function App() {
                          <div className="absolute top-2 right-2 transform rotate-[15deg] opacity-90 pointer-events-none z-0 animate-pop" style={{ animationDelay: '0.2s' }}>
                             <div className="w-16 h-16 border-4 border-[#D32F2F] rounded-full flex items-center justify-center p-1 mask-image">
                                 <div className="w-full h-full border-2 border-[#D32F2F] rounded-full flex items-center justify-center border-dashed">
-                                    <span className="text-[#D32F2F] font-black text-xs leading-tight rotate-[-15deg]">牛马<br/>认证</span>
+                                    <span className="text-[#D32F2F] font-black text-xs leading-tight rotate-[-15deg]">牛馬&lt;br/&gt;認證</span>
                                 </div>
                             </div>
                          </div>
                          
                          <div className="text-xs font-bold text-[#5D4037] mb-2 flex items-center gap-2">
                             <span className="w-2 h-2 rounded-full bg-[#22C55E] border border-black"></span>
-                            牛马代号：{username}
+                            牛馬代號：{username}
                          </div>
                          <div className="text-xs font-bold text-[#5D4037] mb-4 flex items-center gap-2">
                             <span className="w-2 h-2 rounded-full bg-[#22C55E] border border-black"></span>
-                            状态：{myFate?.word}着
+                            狀態：{myFate?.word}着
                          </div>
                          
                          {/* System Roast - Combined */}
                          <div className="w-full bg-[#FFF0F0] border-2 border-[#D32F2F] rounded-xl p-2 relative group mb-1">
                             <div className="absolute -top-3 left-4 bg-[#D32F2F] text-white text-[10px] px-2 py-0.5 rounded border border-black">
-                                系统锐评
+                                系統銳評
                             </div>
                             <div className="text-xs font-bold text-[#4A2722] mt-1 leading-relaxed text-left">
                                 {myFate?.roast}
@@ -999,7 +999,7 @@ export default function App() {
          {/* Bottom Section: Buttons */}
          <div className="w-full max-w-[300px] space-y-3 z-20 shrink-0">
            <Button onClick={handleGeneratePosters} fullWidth variant="primary" className="border-2 border-black shadow-[4px_4px_0px_#000]">
-               <ImageIcon className="w-5 h-5" /> 复制发圈
+               <ImageIcon className="w-5 h-5" /> 複製發圈
            </Button>
            <Button onClick={() => {
                setStep(GameStep.LANDING); 
@@ -1033,7 +1033,7 @@ export default function App() {
         
         <h3 className="text-2xl font-black text-[#9B1C1C] text-center mb-6 mt-4 flex items-center justify-center gap-2">
            <Trophy className="w-8 h-8 text-[#FFD700] drop-shadow-md fill-[#FFD700] stroke-black" /> 
-           <span>摸鱼排行榜</span>
+           <span>摸魚排行榜</span>
         </h3>
         
         <div className="flex-1 overflow-y-auto space-y-3 px-1 no-scrollbar pb-4">
@@ -1059,9 +1059,9 @@ export default function App() {
         </div>
         
         <div className="mt-4 pt-4 border-t-2 border-dashed border-[#4A2722]/20 text-center shrink-0">
-           <p className="text-xs font-bold text-[#A1887F] mb-3">仅展示前 5 名最能摸鱼的品种</p>
+           <p className="text-xs font-bold text-[#A1887F] mb-3">僅展示前 5 名最能摸魚的品種</p>
            <Button onClick={() => { setShowLeaderboard(false); setStep(GameStep.RESULT); }} fullWidth variant="primary" className="border-2 border-black py-3 text-base shadow-[4px_4px_0px_#000]">
-             查看我的结果
+             查看我的結果
            </Button>
         </div>
       </div>
@@ -1083,7 +1083,7 @@ export default function App() {
         {isGenerating ? (
           <div className="text-center text-white space-y-4">
              <Loader2 className="w-12 h-12 animate-spin mx-auto text-[#FFD700]" />
-             <p className="font-bold text-lg">正在生成牛马护身符...</p>
+             <p className="font-bold text-lg">正在生成牛馬護身符...</p>
           </div>
         ) : (
           <div className="w-full max-w-md h-full flex flex-col items-center">
@@ -1104,7 +1104,7 @@ export default function App() {
              
              <div className="absolute bottom-6 left-0 right-0 px-6 pointer-events-none flex justify-center">
                  <div className="bg-[#4A2722]/80 backdrop-blur-md text-[#FFD700] px-4 py-2 rounded-full text-xs font-bold border border-[#FFD700]/30 shadow-lg animate-pulse pointer-events-auto">
-                    长按图片保存到相册
+                    長按圖片保存到相冊
                  </div>
              </div>
           </div>
@@ -1152,8 +1152,8 @@ export default function App() {
          {/* Single Scene: Combined Poster */}
          <div className="print-scene" style={sceneStyle}>
              {/* Couplets positions manually */}
-             <div style={{position: 'absolute', top: '5rem', left: '1rem'}}><Couplet text="摸鱼划水技艺高" side="left" /></div>
-             <div style={{position: 'absolute', top: '5rem', right: '1rem'}}><Couplet text="带薪拉屎身体棒" side="right" /></div>
+             <div style={{position: 'absolute', top: '5rem', left: '1rem'}}><Couplet text="摸魚劃水技藝高" side="left" /></div>
+             <div style={{position: 'absolute', top: '5rem', right: '1rem'}}><Couplet text="帶薪拉屎身體棒" side="right" /></div>
              
              {/* Combined Poster */}
              <div className="w-[280px] bg-[#FFFDF7] rounded-[2rem] border-4 border-black relative z-10 flex flex-col mt-4 shadow-xl">
@@ -1191,7 +1191,7 @@ export default function App() {
                  {/* Content Body */}
                  <div className="pt-16 pb-6 px-6 flex flex-col items-center text-center">
                      <div className="mb-2 bg-[#FFD700] border-2 border-black px-4 py-2 rounded-full text-xs font-black text-[#4A2722] flex items-center justify-center min-h-[32px]">
-                       <span style={{lineHeight: '1'}}>神马 · 2026</span>
+                       <span style={{lineHeight: '1'}}>神馬 · 2026</span>
                      </div>
                      
                      {/* Horse Type */}
@@ -1204,8 +1204,8 @@ export default function App() {
                      
                      {/* Info */}
                      <div className="w-full space-y-2 mb-4">
-                       <div className="text-sm font-bold text-[#5D4037]">牛马代号：{username}</div>
-                       <div className="text-sm font-bold text-[#5D4037]">状态：{myFate?.word}着</div>
+                       <div className="text-sm font-bold text-[#5D4037]">牛馬代號：{username}</div>
+                       <div className="text-sm font-bold text-[#5D4037]">狀態：{myFate?.word}着</div>
                      </div>
                      
                      {/* System Roast */}
